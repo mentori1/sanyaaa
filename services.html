@@ -191,17 +191,76 @@ footer{background:var(--near-black);padding:60px;display:grid;grid-template-colu
 .foot-bottom{background:var(--near-black);padding:20px 60px;border-top:1px solid rgba(249,228,197,.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
 .foot-copy{font-size:12px;color:rgba(249,228,197,.3)}.foot-phone{font-size:14px;font-weight:600;color:var(--buff);text-decoration:none}
 
+/* ── helpers for inline-style grids ── */
+.tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.delivery-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start}
+
+/* Touch — gallery overlay всегда видна, не только на hover */
+@media(hover:none){
+  .evo-img-overlay{opacity:1;background:rgba(27,68,54,.45)}
+}
+
+/* ── TABLET 900px ── */
 @media(max-width:900px){
   section,.srv-section,.srv-cta,#infographic-section,#pricing,#evrolos{padding:64px 24px}
   nav,nav.scrolled{padding:14px 24px}
-  .page-hero{padding:120px 24px 60px}
-  #service-nav{padding:0 24px;top:58px}
+  .page-hero{padding:120px 24px 56px}
+  #service-nav{padding:0 16px;top:56px}
   .srv-wrap,.srv-wrap.reverse,.evrolos-intro{grid-template-columns:1fr;direction:ltr}
+  .srv-img{height:280px}
+  .tech-grid{grid-template-columns:repeat(2,1fr)}
   .info-grid{grid-template-columns:repeat(2,1fr)}
-  .price-grid,.evo-grid{grid-template-columns:1fr}
-  footer{grid-template-columns:1fr;padding:40px 24px}
+  .info-cell{padding:32px 20px}
+  .info-val{font-size:38px}
+  .price-grid{grid-template-columns:repeat(2,1fr)}
+  .evo-grid{grid-template-columns:repeat(2,1fr)}
+  .price-card{padding:28px 20px}
+  .modal{padding:32px 24px}
+  .modal h3{font-size:22px}
+  footer{grid-template-columns:1fr 1fr;padding:40px 24px;gap:28px}
+  .foot-brand{grid-column:1/-1}
   .foot-bottom{padding:16px 24px}
   .nav-links{display:none}.burger{display:flex}
+}
+
+/* ── PHONE 600px ── */
+@media(max-width:600px){
+  section,.srv-section,.srv-cta,#infographic-section,#pricing,#evrolos{padding:48px 16px}
+  .page-hero{padding:100px 16px 40px}
+  .page-hero p{font-size:15px}
+  #service-nav{top:54px;padding:0 4px}
+  .srv-tab{padding:14px 13px;font-size:12px}
+  .srv-img{height:210px}
+  .srv-wrap{gap:28px}
+  .srv-text p{font-size:14px}
+  .tech-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .tech-grid > div{padding:20px 14px !important}
+  .tech-grid > div > div:first-child{font-size:28px !important}
+  .info-grid{grid-template-columns:1fr 1fr;gap:2px}
+  .info-cell{padding:22px 12px}
+  .info-icon{font-size:28px;margin-bottom:10px}
+  .info-val{font-size:28px}
+  .info-val sub{font-size:15px}
+  .info-label{font-size:11px;line-height:1.4}
+  .price-grid,.evo-grid{grid-template-columns:1fr}
+  .price-card{padding:24px 16px}
+  .price-val{font-size:26px}
+  .evo-img{height:175px}
+  .modal{padding:24px 16px}
+  .modal h3{font-size:20px}
+  .evrolos-intro{gap:28px}
+  .plb-topbar{padding:12px 14px}
+  .plb-title{font-size:13px}
+  .plb-body{padding:8px 44px}
+  .plb-arrow{width:36px;height:36px;font-size:15px}
+  .plb-prev{left:4px}.plb-next{right:4px}
+  .plb-thumbs{padding:8px 12px;gap:6px}
+  .plb-thumb{width:48px;height:48px}
+  .delivery-grid > div{padding:18px 12px !important}
+  .delivery-grid > div > div:first-child{font-size:28px !important}
+  footer{grid-template-columns:1fr 1fr;gap:20px;padding:32px 16px}
+  .foot-bottom{flex-direction:column;align-items:flex-start;gap:4px;padding:14px 16px}
+  .foot-copy{font-size:11px}
 }
 </style>
 </head>
@@ -222,7 +281,7 @@ footer{background:var(--near-black);padding:60px;display:grid;grid-template-colu
   </div>
 </div>
 <nav id="nav">
-  <a href="index.html" class="logo">Центр <span>окон</span> и дверей</a>
+  <a href="index.html" class="logo">Первая <span>строительная</span> компания</a>
   <ul class="nav-links">
     <li><a href="index.html">Главная</a></li><li><a href="about.html">О компании</a></li>
     <li><a href="services.html" class="active">Услуги</a></li><li><a href="portfolio.html">Портфолио</a></li>
@@ -285,7 +344,7 @@ footer{background:var(--near-black);padding:60px;display:grid;grid-template-colu
   <!-- House types infographic -->
   <div style="margin-top:80px">
     <h3 style="font-family:var(--serif);font-size:28px;color:var(--dark);margin-bottom:36px;text-align:center" class="reveal">Сравнение технологий строительства</h3>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px" class="reveal">
+    <div class="tech-grid reveal">
       <div style="padding:32px 24px;background:var(--gray-100);border-radius:var(--r-lg);border-top:4px solid var(--moss)">
         <div style="font-size:36px;margin-bottom:12px">🪵</div>
         <div style="font-size:17px;font-weight:700;color:var(--dark);margin-bottom:12px">Каркасный</div>
@@ -616,7 +675,7 @@ footer{background:var(--near-black);padding:60px;display:grid;grid-template-colu
 <!-- ═══ DELIVERY ══════════════════════════════════════════ -->
 <section id="delivery" class="srv-section">
   <div class="srv-wrap reverse">
-    <div class="reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start">
+    <div class="delivery-grid reveal">
       <div style="padding:28px;background:var(--gray-100);border-radius:var(--r-lg);text-align:center">
         <div style="font-size:36px;margin-bottom:8px">🪵</div>
         <div style="font-size:13px;font-weight:600;color:var(--dark)">Пиломатериалы</div>
