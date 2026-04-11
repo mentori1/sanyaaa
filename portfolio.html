@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Портфолио — Первая строительная компания · Лахденпохья</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#1B4436;--moss:#88A33B;--moss-dark:#6a8030;
+  --champ:#F9E4C5;--buff:#DDAD8A;--slate:#5B758C;
+  --white:#ffffff;--near-black:#12201B;
+  --gray-100:#f4f1eb;--gray-200:#e8e2d6;--gray-400:#a0998c;--gray-600:#6b6358;
+  --font:'Inter',sans-serif;--serif:'Playfair Display',serif;
+  --r:6px;--r-lg:16px;
+  --sh:0 4px 24px rgba(27,68,54,.10);--sh-lg:0 16px 56px rgba(27,68,54,.16);
+  --tr:all .32s cubic-bezier(.25,.46,.45,.94);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);color:var(--near-black);background:var(--white);line-height:1.6;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(27,68,54,.97);backdrop-filter:blur(16px);transition:var(--tr)}
+nav.scrolled{box-shadow:0 1px 0 rgba(255,255,255,.08);padding:13px 60px}
+.logo{font-family:var(--serif);font-size:20px;color:var(--champ);text-decoration:none;font-weight:600}.logo span{color:var(--buff)}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:rgba(249,228,197,.7);text-decoration:none;font-size:14px;font-weight:500;transition:var(--tr)}
+.nav-links a:hover,.nav-links a.active{color:var(--buff)}
+.nav-cta{background:var(--moss);color:var(--white)!important;padding:9px 20px;border-radius:50px;font-size:13px!important;font-weight:600!important}
+.nav-cta:hover{background:var(--moss-dark)!important}
+.burger{display:none;flex-direction:column;gap:5px;cursor:pointer}
+.burger span{display:block;width:24px;height:2px;background:var(--champ);border-radius:2px}
+.mob-menu{position:fixed;inset:0;background:var(--dark);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;transform:translateX(100%);transition:transform .45s cubic-bezier(.25,.46,.45,.94)}
+.mob-menu.open{transform:translateX(0)}
+.mob-menu a{color:var(--champ);text-decoration:none;font-size:26px;font-family:var(--serif)}
+.mob-close{position:absolute;top:22px;right:22px;background:none;border:none;color:var(--champ);font-size:28px;cursor:pointer}
+
+/* ── MODAL CALLBACK ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(27,68,54,.65);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:20px}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border-radius:var(--r-lg);padding:48px;max-width:460px;width:100%;transform:scale(.95);transition:transform .3s;position:relative}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--gray-100);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal h3{font-size:26px;font-weight:700;color:var(--dark);margin-bottom:6px}
+.modal p{font-size:14px;color:var(--gray-600);margin-bottom:28px}
+.inp{width:100%;padding:13px 16px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:var(--r);font-size:15px;font-family:var(--font);outline:none;transition:var(--tr);margin-bottom:10px;color:var(--near-black)}
+.inp:focus{border-color:var(--moss);background:var(--white)}
+.inp::placeholder{color:var(--gray-400)}
+.btn-full{display:block;width:100%;padding:15px;background:var(--moss);color:var(--white);text-align:center;font-size:14px;font-weight:600;border-radius:var(--r);border:none;cursor:pointer;transition:var(--tr)}
+.btn-full:hover{background:var(--moss-dark)}
+
+/* ── BASE ── */
+.section-label{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--moss);margin-bottom:14px}
+h2{font-family:var(--serif);font-size:clamp(30px,4vw,50px);font-weight:400;line-height:1.15;color:var(--dark)}
+h2 em{font-style:normal;color:var(--moss)}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.rd1{transition-delay:.1s}.rd2{transition-delay:.2s}.rd3{transition-delay:.3s}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:var(--r);font-size:14px;font-weight:600;text-decoration:none;border:none;cursor:pointer;transition:var(--tr)}
+.btn-primary{background:var(--moss);color:var(--white)}
+.btn-primary:hover{background:var(--moss-dark);transform:translateY(-2px)}
+.btn-dark{background:var(--dark);color:var(--white)}
+.btn-dark:hover{background:#133328;transform:translateY(-2px)}
+.sticky-cta{position:fixed;bottom:28px;right:28px;z-index:999;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.sticky-btn{display:flex;align-items:center;gap:9px;background:var(--moss);color:#fff;padding:13px 22px;border-radius:50px;font-size:13px;font-weight:600;text-decoration:none;box-shadow:0 8px 28px rgba(136,163,59,.45);transition:var(--tr);white-space:nowrap}
+.sticky-btn:hover{background:var(--moss-dark);transform:translateY(-2px)}
+.sticky-btn.wa{background:#25d366;box-shadow:0 8px 28px rgba(37,211,102,.35)}
+.sticky-btn.wa:hover{background:#1db954}
+
+/* ── PAGE HERO ── */
+.page-hero{padding:160px 60px 80px;background:var(--dark);position:relative;overflow:hidden}
+.page-hero::before{content:'';position:absolute;inset:0;background:url('фото/Unknown copy.jpeg') center/cover no-repeat;opacity:.12}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(249,228,197,.5);margin-bottom:20px;position:relative}
+.breadcrumb a{color:rgba(249,228,197,.5);text-decoration:none;transition:color .2s}
+.breadcrumb a:hover{color:var(--buff)}
+.breadcrumb span{color:var(--buff)}
+.page-hero h1{font-family:var(--serif);font-size:clamp(36px,5vw,64px);font-weight:400;color:var(--white);line-height:1.1;position:relative}
+.page-hero h1 em{font-style:italic;color:var(--buff)}
+.page-hero p{font-size:17px;color:rgba(249,228,197,.65);margin-top:14px;max-width:540px;line-height:1.7;position:relative}
+
+/* ── STATS BAR ── */
+.stats-bar{background:var(--champ);padding:28px 60px;display:flex;gap:0;border-bottom:1px solid var(--gray-200)}
+.sbar-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;border-right:1px solid var(--buff)}
+.sbar-item:last-child{border-right:none}
+.sbar-num{font-size:32px;font-weight:700;color:var(--dark);line-height:1}
+.sbar-num sup{font-size:16px;color:var(--moss);vertical-align:super}
+.sbar-label{font-size:11px;color:var(--gray-600);margin-top:4px;letter-spacing:.04em;text-align:center}
+
+/* ── PORTFOLIO MAIN ── */
+#portfolio-main{padding:80px 60px 100px}
+
+/* Filter bar */
+.filter-wrap{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:60px}
+.filter-btn{padding:10px 24px;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--gray-200);background:var(--white);color:var(--gray-600);transition:var(--tr);font-family:var(--font)}
+.filter-btn:hover{border-color:var(--dark);color:var(--dark)}
+.filter-btn.active{background:var(--dark);color:var(--white);border-color:var(--dark)}
+
+/* Project grid */
+.proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.proj-card{border-radius:var(--r-lg);overflow:hidden;background:var(--white);box-shadow:var(--sh);transition:var(--tr);cursor:pointer;display:flex;flex-direction:column}
+.proj-card:hover{transform:translateY(-7px);box-shadow:var(--sh-lg)}
+.proj-card.hidden{display:none}
+
+/* Card thumbnail */
+.proj-thumb{position:relative;height:270px;overflow:hidden;background:var(--gray-100)}
+.proj-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .55s ease;display:block}
+.proj-card:hover .proj-thumb img{transform:scale(1.07)}
+.proj-cat-badge{position:absolute;top:14px;left:14px;background:var(--dark);color:var(--champ);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 13px;border-radius:50px;z-index:2}
+.proj-count-badge{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);color:var(--white);font-size:11px;font-weight:600;padding:4px 11px;border-radius:50px;backdrop-filter:blur(6px);z-index:2}
+.proj-overlay{position:absolute;inset:0;background:rgba(27,68,54,.78);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;z-index:3}
+.proj-card:hover .proj-overlay{opacity:1}
+.proj-overlay-btn{background:var(--white);color:var(--dark);padding:12px 24px;border-radius:50px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;pointer-events:none}
+.proj-overlay-btn svg{width:16px;height:16px}
+
+/* Card body */
+.proj-body{padding:24px 28px 28px;flex:1;display:flex;flex-direction:column;gap:8px}
+.proj-title{font-size:16px;font-weight:700;color:var(--dark);line-height:1.35}
+.proj-desc{font-size:13px;color:var(--gray-600);line-height:1.65;flex:1}
+.proj-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.proj-tag{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--moss);background:rgba(136,163,59,.1);padding:3px 9px;border-radius:4px}
+
+/* Empty state */
+.no-results{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--gray-400);display:none}
+.no-results.show{display:block}
+.no-results h3{font-size:22px;color:var(--gray-400);margin-bottom:8px}
+
+/* ── CTA BANNER ── */
+#cta-banner{background:var(--moss);padding:80px 60px;text-align:center}
+#cta-banner h2{color:var(--white);margin-bottom:12px}
+#cta-banner h2 em{color:var(--champ)}
+#cta-banner p{color:rgba(255,255,255,.75);font-size:16px;margin-bottom:36px;max-width:520px;margin-left:auto;margin-right:auto}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-white{background:var(--white);color:var(--dark);padding:14px 32px;border-radius:var(--r);font-size:14px;font-weight:600;border:none;cursor:pointer;transition:var(--tr);text-decoration:none;display:inline-flex}
+.btn-white:hover{background:var(--champ);transform:translateY(-2px)}
+.btn-champ{background:var(--champ);color:var(--dark);padding:14px 32px;border-radius:var(--r);font-size:14px;font-weight:600;text-decoration:none;display:inline-flex;transition:var(--tr)}
+.btn-champ:hover{background:var(--buff);transform:translateY(-2px)}
+
+/* ── FOOTER ── */
+footer{background:var(--near-black);padding:64px 60px 40px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px}
+.foot-brand p{font-size:13px;color:rgba(255,255,255,.4);margin-top:12px;line-height:1.7}
+.foot-logo{font-family:var(--serif);font-size:19px;color:var(--champ);text-decoration:none;font-weight:600}
+.foot-logo span{color:var(--buff)}
+.foot-col h4{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:18px}
+.foot-col ul{list-style:none}
+.foot-col li{margin-bottom:10px}
+.foot-col a{font-size:14px;color:rgba(255,255,255,.6);text-decoration:none;transition:color .2s}
+.foot-col a:hover{color:var(--buff)}
+.foot-bottom{background:var(--near-black);padding:20px 60px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.foot-copy{font-size:12px;color:rgba(255,255,255,.25)}
+.foot-phone{font-size:14px;font-weight:600;color:rgba(255,255,255,.5);text-decoration:none}
+.foot-phone:hover{color:var(--buff)}
+
+/* ── LIGHTBOX ── */
+.lb-overlay{position:fixed;inset:0;background:rgba(10,20,15,.96);z-index:900;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .3s}
+.lb-overlay.open{opacity:1;pointer-events:all}
+.lb-topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.lb-topbar-title{color:var(--white);font-size:15px;font-weight:600}
+.lb-topbar-meta{color:rgba(255,255,255,.4);font-size:13px;margin-top:2px}
+.lb-close-btn{background:rgba(255,255,255,.1);border:none;color:var(--white);width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0}
+.lb-close-btn:hover{background:rgba(255,255,255,.22)}
+.lb-body{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:24px 80px}
+.lb-img-wrap{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.lb-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;user-select:none;transition:opacity .2s}
+.lb-img.loading{opacity:0}
+.lb-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:none;color:var(--white);width:52px;height:52px;border-radius:50%;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;z-index:2}
+.lb-arrow:hover{background:rgba(255,255,255,.22)}
+.lb-prev{left:16px}
+.lb-next{right:16px}
+.lb-arrow.hidden{opacity:.25;pointer-events:none}
+.lb-thumbs-wrap{background:rgba(0,0,0,.5);border-top:1px solid rgba(255,255,255,.06);padding:14px 32px;display:flex;gap:8px;overflow-x:auto;flex-shrink:0;justify-content:center}
+.lb-thumbs-wrap::-webkit-scrollbar{height:4px}
+.lb-thumbs-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px}
+.lb-thumb{width:58px;height:58px;object-fit:cover;border-radius:6px;cursor:pointer;opacity:.45;transition:var(--tr);border:2px solid transparent;flex-shrink:0}
+.lb-thumb.active{opacity:1;border-color:var(--moss)}
+.lb-thumb:hover{opacity:.8}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .proj-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  nav{padding:16px 24px}
+  nav.scrolled{padding:12px 24px}
+  .nav-links{display:none}
+  .burger{display:flex}
+  .page-hero{padding:120px 24px 56px}
+  .stats-bar{padding:24px;flex-wrap:wrap;gap:20px}
+  .sbar-item{border-right:none;flex:calc(50% - 10px)}
+  #portfolio-main{padding:56px 24px 80px}
+  .filter-wrap{gap:8px}
+  .proj-grid{grid-template-columns:1fr}
+  footer{grid-template-columns:1fr 1fr;gap:32px;padding:48px 24px 32px}
+  .foot-brand{grid-column:1/-1}
+  .foot-bottom{padding:16px 24px;flex-direction:column;align-items:flex-start;gap:6px}
+  .lb-body{padding:16px 56px}
+  .lb-arrow{width:40px;height:40px;font-size:18px}
+  .lb-prev{left:6px}
+  .lb-next{right:6px}
+  .lb-thumbs-wrap{justify-content:flex-start}
+  #cta-banner{padding:56px 24px}
+}
+</style>
+</head>
+<body>
+
+<!-- STICKY CTA -->
+<div class="sticky-cta">
+  <a href="tel:+79216241124" class="sticky-btn wa">📞 Позвонить</a>
+  <a href="#" class="sticky-btn" onclick="openModal();return false;">Оставить заявку</a>
+</div>
+
+<!-- MOB MENU -->
+<div class="mob-menu" id="mobMenu">
+  <button class="mob-close" onclick="closeMob()">✕</button>
+  <a href="index.html" onclick="closeMob()">Главная</a>
+  <a href="about.html" onclick="closeMob()">О компании</a>
+  <a href="services.html" onclick="closeMob()">Услуги</a>
+  <a href="portfolio.html" onclick="closeMob()">Портфолио</a>
+  <a href="contacts.html" onclick="closeMob()">Контакты</a>
+</div>
+
+<!-- CALLBACK MODAL -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>Оставить заявку</h3>
+    <p>Перезвоним в течение 30 минут и ответим на все вопросы</p>
+    <input class="inp" type="text" placeholder="Ваше имя">
+    <input class="inp" type="tel" placeholder="+7 (___) ___-__-__">
+    <input class="inp" type="text" placeholder="Что интересует?">
+    <button class="btn-full" onclick="this.textContent='Отправлено ✓';this.style.background='#1B4436'">Отправить →</button>
+    <p style="font-size:11px;color:var(--gray-400);margin-top:10px;text-align:center">Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности</p>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="index.html" class="logo">Первая <span>строительная</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Главная</a></li>
+    <li><a href="about.html">О компании</a></li>
+    <li><a href="services.html">Услуги</a></li>
+    <li><a href="portfolio.html" class="active">Портфолио</a></li>
+    <li><a href="contacts.html" class="nav-cta">Контакты</a></li>
+  </ul>
+  <div class="burger" onclick="document.getElementById('mobMenu').classList.add('open')">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="breadcrumb">
+    <a href="index.html">Главная</a>
+    <span>›</span>
+    <span>Портфолио</span>
+  </div>
+  <h1>Наши <em>работы</em></h1>
+  <p>Реальные объекты, построенные и отремонтированные нашей командой в Карелии. Каждый проект — это фотоотчёт по этапам.</p>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="sbar-item">
+    <div class="sbar-num">4<sup>+</sup></div>
+    <div class="sbar-label">Категории работ</div>
+  </div>
+  <div class="sbar-item">
+    <div class="sbar-num">26<sup>+</sup></div>
+    <div class="sbar-label">Фотографий этапов</div>
+  </div>
+  <div class="sbar-item">
+    <div class="sbar-num">12<sup>+</sup></div>
+    <div class="sbar-label">Лет на рынке</div>
+  </div>
+  <div class="sbar-item">
+    <div class="sbar-num">100<sup>%</sup></div>
+    <div class="sbar-label">Гарантия на работы</div>
+  </div>
+</div>
+
+<!-- PORTFOLIO MAIN -->
+<section id="portfolio-main">
+
+  <!-- Filter -->
+  <div class="filter-wrap" id="filterWrap">
+    <button class="filter-btn active" data-filter="all">Все проекты</button>
+    <button class="filter-btn" data-filter="osteklenie">Остекление</button>
+    <button class="filter-btn" data-filter="otdelka">Внешняя отделка</button>
+    <button class="filter-btn" data-filter="dacha">Дачные домики</button>
+    <button class="filter-btn" data-filter="karkas">Каркасный дом 10×13</button>
+  </div>
+
+  <!-- Grid -->
+  <div class="proj-grid" id="projGrid">
+
+    <!-- Остекление -->
+    <div class="proj-card reveal" data-cat="osteklenie" data-project="osteklenie">
+      <div class="proj-thumb">
+        <img src="Портфолио/Остекление/osteklenie-1-150x150.jpg" alt="Остекление балконов">
+        <div class="proj-cat-badge">Остекление</div>
+        <div class="proj-count-badge">1 фото</div>
+        <div class="proj-overlay">
+          <div class="proj-overlay-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            Открыть галерею
+          </div>
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">Остекление балконов и лоджий</div>
+        <div class="proj-desc">Установка энергосберегающих стеклопакетов. Холодное и тёплое остекление, доборные элементы, откосы.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Стеклопакеты</span>
+          <span class="proj-tag">Балконы</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Внешняя отделка -->
+    <div class="proj-card reveal rd1" data-cat="otdelka" data-project="otdelka">
+      <div class="proj-thumb">
+        <img src="Портфолио/Внешняя отделка домов/otdelka_sayding-150x150.jpg" alt="Внешняя отделка сайдингом">
+        <div class="proj-cat-badge">Внешняя отделка</div>
+        <div class="proj-count-badge">1 фото</div>
+        <div class="proj-overlay">
+          <div class="proj-overlay-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            Открыть галерею
+          </div>
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">Внешняя отделка виниловым сайдингом</div>
+        <div class="proj-desc">Монтаж виниловой обшивки фасада, утепление, откосы и доборные элементы. Защита и красота на годы.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Сайдинг</span>
+          <span class="proj-tag">Фасад</span>
+          <span class="proj-tag">Утепление</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Дачные домики -->
+    <div class="proj-card reveal rd2" data-cat="dacha" data-project="dacha">
+      <div class="proj-thumb">
+        <img src="Портфолио/Строительство дачных домиков/dachniy_domik-1-150x150.jpg" alt="Дачные домики">
+        <div class="proj-cat-badge">Дачные домики</div>
+        <div class="proj-count-badge">8 фото</div>
+        <div class="proj-overlay">
+          <div class="proj-overlay-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            Открыть галерею
+          </div>
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">Строительство дачных домиков — серия «Уют»</div>
+        <div class="proj-desc">8 проектов дачных домиков от 24 до 48 м². Быстрый монтаж, качественные материалы, под ключ.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Дача</span>
+          <span class="proj-tag">24–48 м²</span>
+          <span class="proj-tag">Под ключ</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Каркасный — полы -->
+    <div class="proj-card reveal" data-cat="karkas" data-project="karkas-floor">
+      <div class="proj-thumb">
+        <img src="Портфолио/Строительство каркасного дома 10х13м/dom_10-13_floor-2-150x150.jpg" alt="Устройство полов">
+        <div class="proj-cat-badge">Каркасный дом</div>
+        <div class="proj-count-badge">6 фото</div>
+        <div class="proj-overlay">
+          <div class="proj-overlay-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            Открыть галерею
+          </div>
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">Каркасный дом 10×13 м — Этап I: Полы</div>
+        <div class="proj-desc">Устройство чернового пола: лаги, утеплитель, OSB-настил. Точное соблюдение технологии — залог тепла.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">130 м²</span>
+          <span class="proj-tag">Полы</span>
+          <span class="proj-tag">Этап 1/3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Каркасный — обвязка -->
+    <div class="proj-card reveal rd1" data-cat="karkas" data-project="karkas-frame">
+      <div class="proj-thumb">
+        <img src="Портфолио/Строительство каркасного дома 10х13м/dom_10-13_obvyazka-1-150x150.jpg" alt="Обвязка каркаса">
+        <div class="proj-cat-badge">Каркасный дом</div>
+        <div class="proj-count-badge">2 фото</div>
+        <div class="proj-overlay">
+          <div class="proj-overlay-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            Открыть галерею
+          </div>
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">Каркасный дом 10×13 м — Этап II: Обвязка</div>
+        <div class="proj-desc">Сборка несущего каркаса стен: нижняя обвязка, стойки, верхняя обвязка. Основа прочности всей конструкции.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">130 м²</span>
+          <span class="proj-tag">Каркас</span>
+          <span class="proj-tag">Этап 2/3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Каркасный — кровля -->
+    <div class="proj-card reveal rd2" data-cat="karkas" data-project="karkas-roof">
+      <div class="proj-thumb">
+        <img src="Портфолио/Строительство каркасного дома 10х13м/dom_10-13_roof-1-150x150.jpg" alt="Монтаж кровли">
+        <div class="proj-cat-badge">Каркасный дом</div>
+        <div class="proj-count-badge">9 фото</div>
+        <div class="proj-overlay">
+          <div class="proj-overlay-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            Открыть галерею
+          </div>
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">Каркасный дом 10×13 м — Этап III: Кровля</div>
+        <div class="proj-desc">Монтаж стропильной системы, обрешётки, гидроизоляции и кровельного покрытия. Финальный этап коробки.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">130 м²</span>
+          <span class="proj-tag">Кровля</span>
+          <span class="proj-tag">Этап 3/3</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /proj-grid -->
+  <div class="no-results" id="noResults">
+    <h3>Проектов не найдено</h3>
+    <p>Попробуйте выбрать другую категорию</p>
+  </div>
+
+</section>
+
+<!-- CTA BANNER -->
+<section id="cta-banner">
+  <div class="reveal" style="text-align:center">
+    <div class="section-label" style="color:rgba(255,255,255,.65)">Понравились работы?</div>
+    <h2>Обсудим ваш <em>проект</em></h2>
+    <p>Расскажите о задаче — подберём решение и рассчитаем стоимость. Без обязательств.</p>
+    <div class="cta-btns">
+      <button class="btn-white" onclick="openModal()">Оставить заявку →</button>
+      <a href="tel:+79216241124" class="btn-champ">8 (921) 624-11-24</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-brand">
+    <a href="index.html" class="foot-logo">Первая <span>строительная</span> компания</a>
+    <p>Строительство домов, бань и беседок в Юго-Западной Карелии. Официальный дилер Евролос. С 2012 года.</p>
+  </div>
+  <div class="foot-col">
+    <h4>Навигация</h4>
+    <ul>
+      <li><a href="index.html">Главная</a></li>
+      <li><a href="about.html">О компании</a></li>
+      <li><a href="services.html">Услуги</a></li>
+      <li><a href="portfolio.html">Портфолио</a></li>
+      <li><a href="contacts.html">Контакты</a></li>
+    </ul>
+  </div>
+  <div class="foot-col">
+    <h4>Услуги</h4>
+    <ul>
+      <li><a href="services.html#houses">Строительство домов</a></li>
+      <li><a href="services.html#baths">Бани и беседки</a></li>
+      <li><a href="services.html#foundation">Фундаменты</a></li>
+      <li><a href="services.html#water">Водоснабжение</a></li>
+      <li><a href="services.html#septic">Септики Евролос</a></li>
+    </ul>
+  </div>
+  <div class="foot-col">
+    <h4>Контакты</h4>
+    <ul>
+      <li><a href="tel:+79216241124">8 (921) 624-11-24</a></li>
+      <li><a href="contacts.html">Лахденпохья, ул. Ленина, 21</a></li>
+      <li><a href="contacts.html">Пн–Пт: 09:00–17:00</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="foot-bottom">
+  <span class="foot-copy">© 2024 Первая строительная компания · Лахденпохья · Республика Карелия</span>
+  <a href="tel:+79216241124" class="foot-phone">8 (921) 624-11-24</a>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lb-overlay" id="lb" onclick="if(event.target===this||event.target.closest('.lb-overlay')===this&&!event.target.closest('.lb-body,.lb-topbar,.lb-thumbs-wrap'))closeLb()">
+  <div class="lb-topbar">
+    <div>
+      <div class="lb-topbar-title" id="lbTitle"></div>
+      <div class="lb-topbar-meta" id="lbMeta"></div>
+    </div>
+    <button class="lb-close-btn" onclick="closeLb()">✕</button>
+  </div>
+  <div class="lb-body">
+    <button class="lb-arrow lb-prev" id="lbPrev" onclick="lbNav(-1)">&#8592;</button>
+    <div class="lb-img-wrap">
+      <img class="lb-img" id="lbImg" src="" alt="">
+    </div>
+    <button class="lb-arrow lb-next" id="lbNext" onclick="lbNav(1)">&#8594;</button>
+  </div>
+  <div class="lb-thumbs-wrap" id="lbThumbs"></div>
+</div>
+
+<script>
+// ── Project data ──────────────────────────────────────────────
+const PROJECTS = {
+  osteklenie: {
+    title: 'Остекление балконов и лоджий',
+    photos: [
+      'Портфолио/Остекление/osteklenie-1-150x150.jpg'
+    ]
+  },
+  otdelka: {
+    title: 'Внешняя отделка виниловым сайдингом',
+    photos: [
+      'Портфолио/Внешняя отделка домов/otdelka_sayding-150x150.jpg'
+    ]
+  },
+  dacha: {
+    title: 'Дачные домики — серия «Уют»',
+    photos: [
+      'Портфолио/Строительство дачных домиков/dachniy_domik-1-150x150.jpg',
+      'Портфолио/Строительство дачных домиков/dachniy_domik-2-150x150.jpg',
+      'Портфолио/Строительство дачных домиков/dachniy_domik-3-150x150.jpg',
+      'Портфолио/Строительство дачных домиков/dachniy_domik-4-150x150.jpg',
+      'Портфолио/Строительство дачных домиков/dachniy_domik-5-150x150.jpg',
+      'Портфолио/Строительство дачных домиков/dachniy_domik-6-150x150.jpg',
+      'Портфолио/Строительство дачных домиков/dachniy_domik-7-150x150.jpg',
+      'Портфолио/Строительство дачных домиков/dachniy_domik-8-150x150.jpg'
+    ]
+  },
+  'karkas-floor': {
+    title: 'Каркасный дом 10×13 м — Этап I: Полы',
+    photos: [
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_floor-2-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_floor-3-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_floor-5-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_floor-6-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_floor-7-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_floor-9-150x150.jpg'
+    ]
+  },
+  'karkas-frame': {
+    title: 'Каркасный дом 10×13 м — Этап II: Обвязка',
+    photos: [
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_obvyazka-1-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_obvyazka-2-150x150.jpg'
+    ]
+  },
+  'karkas-roof': {
+    title: 'Каркасный дом 10×13 м — Этап III: Кровля',
+    photos: [
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_roof-1-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_roof-2-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_roof-3-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_roof-4-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_roof-5-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_roof-6-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_roof-8-150x150.jpg',
+      'Портфолио/Строительство каркасного дома 10х13м/dom_10-13_roof-9-150x150.jpg'
+    ]
+  }
+};
+
+// ── Nav scroll ────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', scrollY > 40);
+});
+
+// ── Mobile menu ───────────────────────────────────────────────
+function closeMob() { document.getElementById('mobMenu').classList.remove('open'); }
+
+// ── Callback modal ────────────────────────────────────────────
+function openModal() { document.getElementById('modal').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal() { document.getElementById('modal').classList.remove('open'); document.body.style.overflow = ''; }
+
+// ── Reveal on scroll ──────────────────────────────────────────
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: .08, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+
+// ── Filter ────────────────────────────────────────────────────
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    const cards = document.querySelectorAll('#projGrid .proj-card');
+    let visible = 0;
+    cards.forEach(card => {
+      const match = filter === 'all' || card.dataset.cat === filter;
+      card.classList.toggle('hidden', !match);
+      if (match) visible++;
+    });
+    document.getElementById('noResults').classList.toggle('show', visible === 0);
+  });
+});
+
+// ── Lightbox ──────────────────────────────────────────────────
+let lbPhotos = [], lbIndex = 0, lbTitleText = '';
+
+function openLb(projectKey) {
+  const proj = PROJECTS[projectKey];
+  if (!proj) return;
+  lbPhotos = proj.photos;
+  lbTitleText = proj.title;
+  lbIndex = 0;
+  renderLb();
+  document.getElementById('lb').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLb() {
+  document.getElementById('lb').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function lbNav(dir) {
+  lbIndex = Math.max(0, Math.min(lbPhotos.length - 1, lbIndex + dir));
+  renderLb();
+}
+
+function lbGoTo(idx) {
+  lbIndex = idx;
+  renderLb();
+}
+
+function renderLb() {
+  const img = document.getElementById('lbImg');
+  img.classList.add('loading');
+  img.onload = () => img.classList.remove('loading');
+  img.src = lbPhotos[lbIndex];
+  img.alt = lbTitleText;
+  document.getElementById('lbTitle').textContent = lbTitleText;
+  document.getElementById('lbMeta').textContent = `Фото ${lbIndex + 1} из ${lbPhotos.length}`;
+  document.getElementById('lbPrev').classList.toggle('hidden', lbIndex === 0);
+  document.getElementById('lbNext').classList.toggle('hidden', lbIndex === lbPhotos.length - 1);
+
+  // Thumbnails
+  const wrap = document.getElementById('lbThumbs');
+  wrap.innerHTML = '';
+  lbPhotos.forEach((src, i) => {
+    const t = document.createElement('img');
+    t.className = 'lb-thumb' + (i === lbIndex ? ' active' : '');
+    t.src = src;
+    t.alt = `Фото ${i + 1}`;
+    t.onclick = () => lbGoTo(i);
+    wrap.appendChild(t);
+  });
+  // Scroll active thumb into view
+  const active = wrap.querySelector('.active');
+  if (active) active.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+}
+
+// Click on card → open lightbox
+document.querySelectorAll('#projGrid .proj-card').forEach(card => {
+  card.addEventListener('click', () => openLb(card.dataset.project));
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lb').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') lbNav(-1);
+  if (e.key === 'ArrowRight') lbNav(1);
+  if (e.key === 'Escape') closeLb();
+});
+</script>
+</body>
+</html>
