@@ -146,6 +146,35 @@ h2 em{font-style:normal;color:var(--moss)}
 .evo-cta-btn{display:block;width:100%;padding:12px;background:var(--dark);color:var(--white);text-align:center;font-size:13px;font-weight:600;border-radius:var(--r);border:none;cursor:pointer;transition:var(--tr);font-family:var(--font);margin-top:auto}
 .evo-cta-btn:hover{background:var(--moss)}
 
+/* ── Evo image click overlay ── */
+.evo-img-overlay{position:absolute;inset:0;background:rgba(27,68,54,.78);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0;transition:opacity .3s;cursor:pointer;z-index:3}
+.evo-card:hover .evo-img-overlay{opacity:1}
+.evo-photo-btn{background:var(--white);color:var(--dark);padding:10px 20px;border-radius:50px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px;pointer-events:none;white-space:nowrap}
+.evo-photo-count{font-size:11px;color:rgba(249,228,197,.7);pointer-events:none;letter-spacing:.04em}
+
+/* ── Product lightbox ── */
+.plb-overlay{position:fixed;inset:0;background:rgba(6,12,9,.97);z-index:900;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .3s}
+.plb-overlay.open{opacity:1;pointer-events:all}
+.plb-topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.plb-title{color:var(--white);font-size:15px;font-weight:600}
+.plb-meta{color:rgba(255,255,255,.38);font-size:12px;margin-top:3px}
+.plb-close{background:rgba(255,255,255,.1);border:none;color:var(--white);width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0}
+.plb-close:hover{background:rgba(255,255,255,.24)}
+.plb-body{flex:1;display:flex;align-items:center;justify-content:center;position:relative;padding:16px 64px;min-height:0;overflow:hidden}
+.plb-img-wrap{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.plb-img{width:100%;height:100%;object-fit:contain;transition:opacity .25s;user-select:none}
+.plb-img.loading{opacity:0}
+.plb-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:none;color:var(--white);width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;z-index:4}
+.plb-arrow:hover{background:rgba(255,255,255,.25)}
+.plb-prev{left:10px}.plb-next{right:10px}
+.plb-arrow.hidden{opacity:.2;pointer-events:none}
+.plb-thumbs{background:rgba(0,0,0,.45);border-top:1px solid rgba(255,255,255,.06);padding:12px 28px;display:flex;gap:8px;overflow-x:auto;flex-shrink:0;justify-content:center}
+.plb-thumbs::-webkit-scrollbar{height:4px}
+.plb-thumbs::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px}
+.plb-thumb{width:64px;height:64px;object-fit:contain;background:rgba(255,255,255,.07);border-radius:6px;cursor:pointer;opacity:.45;transition:var(--tr);border:2px solid transparent;flex-shrink:0;padding:2px}
+.plb-thumb.active{opacity:1;border-color:var(--moss)}
+.plb-thumb:hover{opacity:.82}
+
 /* CTA */
 .srv-cta{background:var(--moss);padding:80px 60px;text-align:center}
 .srv-cta h2{color:var(--white);margin-bottom:14px}
@@ -444,10 +473,14 @@ footer{background:var(--near-black);padding:60px;display:grid;grid-template-colu
   <div class="evo-grid">
 
     <!-- Евролос Эко -->
-    <div class="evo-card reveal">
+    <div class="evo-card reveal" data-product="eko">
       <div class="evo-img">
         <img src="евролос/евролос эко /евролос эко.jpg" alt="Евролос Эко">
         <div class="evo-badge">Энергонезависимый</div>
+        <div class="evo-img-overlay" onclick="openPlb('eko')">
+          <div class="evo-photo-btn">🔍 Смотреть фото</div>
+          <div class="evo-photo-count">3 фотографии</div>
+        </div>
       </div>
       <div class="evo-body">
         <div class="evo-name">Евролос Эко</div>
@@ -463,10 +496,14 @@ footer{background:var(--near-black);padding:60px;display:grid;grid-template-colu
     </div>
 
     <!-- Евролос Био -->
-    <div class="evo-card reveal rd1">
+    <div class="evo-card reveal rd1" data-product="bio">
       <div class="evo-img">
         <img src="евролос/евролос био/01_03_00_00_jpg_eurolos-bio-01.png" alt="Евролос Био">
         <div class="evo-badge">Биологическая очистка</div>
+        <div class="evo-img-overlay" onclick="openPlb('bio')">
+          <div class="evo-photo-btn">🔍 Смотреть фото</div>
+          <div class="evo-photo-count">4 фотографии</div>
+        </div>
       </div>
       <div class="evo-body">
         <div class="evo-name">Евролос Био</div>
@@ -482,10 +519,14 @@ footer{background:var(--near-black);padding:60px;display:grid;grid-template-colu
     </div>
 
     <!-- Евролос Про -->
-    <div class="evo-card reveal rd2">
+    <div class="evo-card reveal rd2" data-product="pro">
       <div class="evo-img">
         <img src="евролос/евролос про/Tkcij3f73bZkWr49Vm8zmtmURQflJfAI4NMOMU0fVTk-KSOQQ4wBj1SchAHdJyE8qTL5ItI5Tf2ZVtxdiLEO9TsR.jpg" alt="Евролос Про">
         <div class="evo-badge">Профессиональный</div>
+        <div class="evo-img-overlay" onclick="openPlb('pro')">
+          <div class="evo-photo-btn">🔍 Смотреть фото</div>
+          <div class="evo-photo-count">3 фотографии</div>
+        </div>
       </div>
       <div class="evo-body">
         <div class="evo-name">Евролос Про</div>
@@ -501,10 +542,14 @@ footer{background:var(--near-black);padding:60px;display:grid;grid-template-colu
     </div>
 
     <!-- Евролос Грунт -->
-    <div class="evo-card reveal">
+    <div class="evo-card reveal" data-product="grunt">
       <div class="evo-img">
         <img src="евролос/евролос  грунт/01_03_00_00_jpg_eurolos-grunt-03.png" alt="Евролос Грунт">
         <div class="evo-badge">Доочистка в грунте</div>
+        <div class="evo-img-overlay" onclick="openPlb('grunt')">
+          <div class="evo-photo-btn">🔍 Смотреть фото</div>
+          <div class="evo-photo-count">3 фотографии</div>
+        </div>
       </div>
       <div class="evo-body">
         <div class="evo-name">Евролос Грунт</div>
@@ -520,10 +565,14 @@ footer{background:var(--near-black);padding:60px;display:grid;grid-template-colu
     </div>
 
     <!-- Септик Удача -->
-    <div class="evo-card reveal rd1">
+    <div class="evo-card reveal rd1" data-product="udacha">
       <div class="evo-img">
         <img src="евролос/септик удача/септик удача.jpg" alt="Септик Удача">
         <div class="evo-badge">Бюджетный выбор</div>
+        <div class="evo-img-overlay" onclick="openPlb('udacha')">
+          <div class="evo-photo-btn">🔍 Смотреть фото</div>
+          <div class="evo-photo-count">1 фотография</div>
+        </div>
       </div>
       <div class="evo-body">
         <div class="evo-name">Септик Удача</div>
@@ -539,10 +588,14 @@ footer{background:var(--near-black);padding:60px;display:grid;grid-template-colu
     </div>
 
     <!-- Кессоны и дренаж -->
-    <div class="evo-card reveal rd2">
+    <div class="evo-card reveal rd2" data-product="kesson">
       <div class="evo-img">
         <img src="евролос/Кессоны и дренаж/01_03_00_00_jpg_eurolos-kesson-5-01.png" alt="Кессоны и дренаж">
         <div class="evo-badge">Кессоны</div>
+        <div class="evo-img-overlay" onclick="openPlb('kesson')">
+          <div class="evo-photo-btn">🔍 Смотреть фото</div>
+          <div class="evo-photo-count">3 фотографии</div>
+        </div>
       </div>
       <div class="evo-body">
         <div class="evo-name">Кессоны и дренаж</div>
@@ -702,6 +755,25 @@ footer{background:var(--near-black);padding:60px;display:grid;grid-template-colu
 </footer>
 <div class="foot-bottom"><span class="foot-copy">© 2024 Центр окон и дверей · Лахденпохья · Республика Карелия</span><a href="tel:+79216241124" class="foot-phone">8 (921) 624-11-24</a></div>
 
+<!-- ═══ PRODUCT GALLERY LIGHTBOX ══════════════════════════════ -->
+<div class="plb-overlay" id="plb">
+  <div class="plb-topbar">
+    <div>
+      <div class="plb-title" id="plbTitle"></div>
+      <div class="plb-meta" id="plbMeta"></div>
+    </div>
+    <button class="plb-close" onclick="closePlb()">✕</button>
+  </div>
+  <div class="plb-body">
+    <button class="plb-arrow plb-prev hidden" id="plbPrev" onclick="plbNav(-1)">&#8592;</button>
+    <div class="plb-img-wrap">
+      <img class="plb-img" id="plbImg" src="" alt="">
+    </div>
+    <button class="plb-arrow plb-next hidden" id="plbNext" onclick="plbNav(1)">&#8594;</button>
+  </div>
+  <div class="plb-thumbs" id="plbThumbs"></div>
+</div>
+
 <script>
 window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>10));
 function openModal(){document.getElementById('modal').classList.add('open');document.body.style.overflow='hidden'}
@@ -710,6 +782,86 @@ const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 const cobs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){const t=parseInt(x.target.dataset.count),d=1600,s=ts=>{if(!s.t)s.t=ts;const p=Math.min((ts-s.t)/d,1),e2=1-Math.pow(1-p,3);x.target.childNodes[0].textContent=Math.floor(e2*t);if(p<1)requestAnimationFrame(s)};requestAnimationFrame(s);cobs.unobserve(x.target)}}),{threshold:.5});
 document.querySelectorAll('[data-count]').forEach(el=>cobs.observe(el));
+// ── Product gallery lightbox ──────────────────────────────────
+const EVO_PRODUCTS={
+  eko:{title:'Евролос Эко',photos:[
+    'евролос/евролос эко /евролос эко.jpg',
+    'евролос/евролос эко /01_03_00_00_jpg_eurolos-eko-03.png',
+    'евролос/евролос эко /01_03_00_00_jpg_eurolos-eko-05.png'
+  ]},
+  bio:{title:'Евролос Био',photos:[
+    'евролос/евролос био/01_03_00_00_jpg_eurolos-bio-01.png',
+    'евролос/евролос био/01_03_00_00_jpg_eurolos-bio-02.png',
+    'евролос/евролос био/01_03_00_00_jpg_eurolos-bio-03.png',
+    'евролос/евролос био/01_03_00_00_jpg_eurolos-bio-04.png'
+  ]},
+  pro:{title:'Евролос Про',photos:[
+    'евролос/евролос про/Tkcij3f73bZkWr49Vm8zmtmURQflJfAI4NMOMU0fVTk-KSOQQ4wBj1SchAHdJyE8qTL5ItI5Tf2ZVtxdiLEO9TsR.jpg',
+    'евролос/евролос про/U1SG7fuscZ37ZbeHjYA5MPlYAJMoYdy-vKZt1XdrpPtJJAhtpVvTEeEz8HGr1HB1uGGvLF4B8bK3CAL5sWSyjxz3.jpg',
+    'евролос/евролос про/sBXssU1XPJ3n7zAdxPZ7l1wZsZM8vuwDj3vPZS_VgO2jIXNhKPqL7kkQc3g2JqTP0qqhX7vaUF7MQmhFbrUKxRf2.jpg'
+  ]},
+  grunt:{title:'Евролос Грунт',photos:[
+    'евролос/евролос  грунт/01_03_00_00_jpg_eurolos-grunt-03.png',
+    'евролос/евролос  грунт/01_03_00_00_jpg_eurolos-grunt-05.png',
+    'евролос/евролос  грунт/6L-PaVrVzaEeXtxpz2J-QRNoSqiEc9Qy1mlsZ8YC6NyrieKQYA45kUl68um7kMcmEb-8_dmoIWJKZQwG5BuxlvHA.jpg'
+  ]},
+  udacha:{title:'Септик Удача',photos:[
+    'евролос/септик удача/септик удача.jpg'
+  ]},
+  kesson:{title:'Кессоны и дренаж',photos:[
+    'евролос/Кессоны и дренаж/01_03_00_00_jpg_eurolos-kesson-5-01.png',
+    'евролос/Кессоны и дренаж/01_03_00_00_jpg_eurolos-kesson-5-03.png',
+    'евролос/Кессоны и дренаж/01_03_00_00_jpg_eurolos-kesson-5-04.png'
+  ]}
+};
+let plbPhotos=[],plbIdx=0,plbTitleText='';
+function openPlb(key){
+  const p=EVO_PRODUCTS[key];if(!p)return;
+  plbPhotos=p.photos;plbIdx=0;plbTitleText=p.title;
+  renderPlb();
+  document.getElementById('plb').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closePlb(){
+  document.getElementById('plb').classList.remove('open');
+  document.body.style.overflow='';
+}
+function plbNav(dir){plbIdx=Math.max(0,Math.min(plbPhotos.length-1,plbIdx+dir));renderPlb();}
+function plbGoTo(i){plbIdx=i;renderPlb();}
+function renderPlb(){
+  const img=document.getElementById('plbImg');
+  img.classList.add('loading');
+  img.onload=()=>img.classList.remove('loading');
+  img.src=plbPhotos[plbIdx];
+  img.alt=plbTitleText;
+  document.getElementById('plbTitle').textContent=plbTitleText;
+  document.getElementById('plbMeta').textContent='Фото '+(plbIdx+1)+' из '+plbPhotos.length;
+  document.getElementById('plbPrev').classList.toggle('hidden',plbIdx===0);
+  document.getElementById('plbNext').classList.toggle('hidden',plbIdx===plbPhotos.length-1);
+  const wrap=document.getElementById('plbThumbs');
+  wrap.innerHTML='';
+  if(plbPhotos.length>1){
+    plbPhotos.forEach((src,i)=>{
+      const t=document.createElement('img');
+      t.className='plb-thumb'+(i===plbIdx?' active':'');
+      t.src=src;t.alt='Фото '+(i+1);
+      t.onclick=()=>plbGoTo(i);
+      wrap.appendChild(t);
+    });
+    const active=wrap.querySelector('.active');
+    if(active)active.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+  }
+}
+document.getElementById('plb').addEventListener('click',e=>{
+  if(e.target===document.getElementById('plb'))closePlb();
+});
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('plb').classList.contains('open'))return;
+  if(e.key==='ArrowLeft')plbNav(-1);
+  if(e.key==='ArrowRight')plbNav(1);
+  if(e.key==='Escape')closePlb();
+});
+
 // Active tab on scroll
 const tabs=document.querySelectorAll('.srv-tab');
 const secs=document.querySelectorAll('.srv-section,[id]');
