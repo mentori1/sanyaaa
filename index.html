@@ -410,11 +410,12 @@ function initScene(){
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure=1.05;
   renderer.outputColorSpace=THREE.SRGBColorSpace;
+  if(!isMobile){renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;}  /* мягкие тени */
 
   const scene=new THREE.Scene();
 
-  /* Фон-сумерки (вертикальный градиент) */
-  scene.background=gradientTex(['#06090e','#090f17','#0c1420'],'v');
+  /* Тёмно-зелёный фон (в тон фасаду; по краям не лезет светлое) */
+  scene.background=gradientTex(['#13201a','#172620','#1b2c24'],'v');
 
   /* Окружение для отражений/преломлений в стекле и фурнитуре */
   const pmrem=new THREE.PMREMGenerator(renderer); pmrem.compileEquirectangularShader();
@@ -426,16 +427,17 @@ function initScene(){
   });
 
   const camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,0.1,100);
-  camera.position.set(0,0,21);
+  camera.position.set(0,0,18);
 
-  /* ── Вид за окном: фотореалистичная Карелия (сгенерировано Gemini) ── */
+  /* ── Вид за окном: фотореалистичная Карелия (сгенерировано Gemini) ──
+     далеко и крупно → видно ВСЮ картину целиком, без зума и мыла */
   const landTex=new THREE.TextureLoader().load('assets/gen/forest_view.png',()=>{lastAct=performance.now();});
-  landTex.colorSpace=THREE.SRGBColorSpace;
+  landTex.colorSpace=THREE.SRGBColorSpace; landTex.anisotropy=renderer.capabilities.getMaxAnisotropy();
   const land=new THREE.Mesh(
-    new THREE.PlaneGeometry(40,22.5),
+    new THREE.PlaneGeometry(52,29),
     new THREE.MeshBasicMaterial({map:landTex})
   );
-  land.position.set(0,1.5,-7);
+  land.position.set(0,2,-22);
   scene.add(land);
   /* пылинки в солнечном свете (проявляются снаружи) */
   const N=isMobile?140:240, dpos=new Float32Array(N*3);
@@ -445,30 +447,44 @@ function initScene(){
   scene.add(dust);
 
   /* ── Комната: мы внутри квартиры ── */
-  const roomW=10, roomH=7, backZ=16;
-  const fl=-roomH/2;                          /* уровень пола */
-  const wallMat=new THREE.MeshStandardMaterial({color:0xd2ccc1,roughness:.92,side:THREE.DoubleSide,envMapIntensity:.5});  /* светлая скандинавская стена */
-  const floorMat=new THREE.MeshStandardMaterial({color:0xb1925f,roughness:.5,metalness:.05,side:THREE.DoubleSide,envMapIntensity:.55}); /* паркет/ламинат */
-  const ceilMat=new THREE.MeshStandardMaterial({color:0xece8e0,roughness:.95,side:THREE.DoubleSide,envMapIntensity:.3});
+  const roomW=9, roomH=5.2, backZ=12;          /* ниже потолок (~2.8м), капитальные размеры */
+  const fl=-roomH/2;                           /* уровень пола */
+  const wallT=0.42;                            /* толщина стен — капитальный дом */
+  const wallMat=new THREE.MeshStandardMaterial({color:0xa9a291,roughness:.92,side:THREE.DoubleSide,envMapIntensity:.5});
+  const floorTex=new THREE.TextureLoader().load('assets/gen/floor_wood.png',()=>{lastAct=performance.now();});
+  floorTex.colorSpace=THREE.SRGBColorSpace; floorTex.wrapS=floorTex.wrapT=THREE.RepeatWrapping; floorTex.repeat.set(3,4);
+  const floorMat=new THREE.MeshStandardMaterial({map:floorTex,roughness:.62,metalness:.04,side:THREE.DoubleSide,envMapIntensity:.4});
+  const ceilMat=new THREE.MeshStandardMaterial({color:0xeeeae2,roughness:.95,side:THREE.DoubleSide,envMapIntensity:.3});
   const room=new THREE.Group(); scene.add(room);
-  const W=3.4,H=4.4;            /* проём окна в стене */
+  const W=5.0,H=3.8;            /* панорамное окно — главный герой кадра */
   const panel=(w,h,mat,x,y,z,rx,ry)=>{
     const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
-    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; room.add(m);
+    m.position.set(x,y,z); if(rx)m.rotation.x=rx; if(ry)m.rotation.y=ry; m.receiveShadow=true; room.add(m);
   };
+  const rbox=(w,h,dep,mat,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,dep),mat);m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;room.add(m);return m;};
+  /* ── передняя стена с проёмом окна: ТОЛСТАЯ (откосы видны изнутри) ── */
   const topH=(roomH-H)/2, sideW=(roomW-W)/2;
-  panel(roomW,topH,wallMat,0,(H+roomH)/4,0);                  /* стена над окном  */
-  panel(roomW,topH,wallMat,0,-(H+roomH)/4,0);                 /* стена под окном  */
-  panel(sideW,H,wallMat,-(W+roomW)/4,0,0);                    /* стена слева      */
-  panel(sideW,H,wallMat,(W+roomW)/4,0,0);                     /* стена справа     */
-  panel(backZ,roomH,wallMat,-roomW/2,0,backZ/2,0,Math.PI/2);  /* левая стена      */
-  panel(backZ,roomH,wallMat,roomW/2,0,backZ/2,0,-Math.PI/2);  /* правая стена     */
-  panel(roomW,backZ,floorMat,0,-roomH/2,backZ/2,-Math.PI/2,0);/* пол              */
-  panel(roomW,backZ,ceilMat,0,roomH/2,backZ/2,Math.PI/2,0);   /* потолок          */
+  rbox(roomW,topH,wallT,wallMat,0,(H+roomH)/4,-wallT/2);       /* над окном */
+  rbox(roomW,topH,wallT,wallMat,0,-(H+roomH)/4,-wallT/2);      /* под окном */
+  rbox(sideW,H,wallT,wallMat,-(W+roomW)/4,0,-wallT/2);         /* слева */
+  rbox(sideW,H,wallT,wallMat,(W+roomW)/4,0,-wallT/2);          /* справа */
+  /* наличник окна со стороны комнаты */
+  const trimMat=new THREE.MeshStandardMaterial({color:0xeae6dd,roughness:.7,metalness:.03});
+  const tr=0.15;
+  rbox(W+tr*2,tr,0.06,trimMat,0,H/2+tr/2,0.04);
+  rbox(W+tr*2,tr,0.06,trimMat,0,-H/2-tr/2,0.04);
+  rbox(tr,H+tr*2,0.06,trimMat,-W/2-tr/2,0,0.04);
+  rbox(tr,H+tr*2,0.06,trimMat,W/2+tr/2,0,0.04);
+  /* боковые стены, пол, потолок */
+  panel(backZ,roomH,wallMat,-roomW/2,0,backZ/2,0,Math.PI/2);
+  panel(backZ,roomH,wallMat,roomW/2,0,backZ/2,0,-Math.PI/2);
+  panel(roomW,backZ,floorMat,0,-roomH/2,backZ/2,-Math.PI/2,0);
+  panel(roomW,backZ,ceilMat,0,roomH/2,backZ/2,Math.PI/2,0);
 
-  /* ── Окно в проёме стены ── */
+  /* ── Окно, утопленное в толстую стену (видны откосы) ── */
   const t=0.22,d=0.22,st=0.13;
   const win=new THREE.Group();
+  win.position.z=-wallT+0.12;                  /* утоплено в проём */
   scene.add(win);
 
   const pvc=new THREE.MeshStandardMaterial({color:0xf2f3f4,roughness:.45,metalness:.05});
@@ -495,8 +511,8 @@ function initScene(){
   frame.add(place(bar(W-2*t+li*2,li,d*0.5,pvc2),0,-(H/2-t-li/2), lz));
   frame.add(place(bar(li,H-2*t,d*0.5,pvc2),-(W/2-t-li/2),0, lz));
   frame.add(place(bar(li,H-2*t,d*0.5,pvc2), (W/2-t-li/2),0, lz));
-  /* подоконник */
-  frame.add(place(bar(W+0.5,0.16,0.6,pvc),0,-H/2-0.02,0.18));
+  /* подоконник — выступает в комнату */
+  frame.add(place(bar(W+0.45,0.13,0.62,pvc2),0,-H/2-0.05,0.5));
   win.add(frame);
 
   const innerW=W-2*t, innerH=H-2*t, sashW=innerW/2;
@@ -525,17 +541,24 @@ function initScene(){
   const left=sash(-1), right=sash(1);
   win.add(left,right);
 
-  /* ── Входная металлическая дверь (начало сцены, задняя стена z=16) ── */
-  const doorZ=16, doorW=2.0, doorH=4.8, doorTopY=fl+doorH, sideD=(roomW-doorW)/2;
-  panel(sideD,roomH,wallMat,-(doorW+roomW)/4,0,doorZ);                 /* стена слева от двери */
-  panel(sideD,roomH,wallMat,(doorW+roomW)/4,0,doorZ);                  /* стена справа от двери */
-  panel(doorW,roomH/2-doorTopY,wallMat,0,(doorTopY+roomH/2)/2,doorZ);  /* стена над дверью */
-  const metal=new THREE.MeshStandardMaterial({color:0x2b2f33,metalness:.78,roughness:.42,envMapIntensity:.7});
-  const metal2=new THREE.MeshStandardMaterial({color:0x383e44,metalness:.7,roughness:.55});
+  /* ── Входная металлическая дверь (начало сцены, задняя стена z=backZ) ── */
+  const doorZ=backZ, doorW=2.1, doorH=4.4, doorTopY=fl+doorH, sideD=(roomW-doorW)/2;
+  /* зелёная ГОРИЗОНТАЛЬНАЯ доска-фасад; дверь на полу, НИЖЕ неё ничего нет */
+  const facadeTex=new THREE.TextureLoader().load('assets/gen/facade_green.png',()=>{lastAct=performance.now();});
+  facadeTex.colorSpace=THREE.SRGBColorSpace; facadeTex.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  facadeTex.wrapS=facadeTex.wrapT=THREE.RepeatWrapping; facadeTex.repeat.set(3,3);
+  facadeTex.center.set(0.5,0.5); facadeTex.rotation=Math.PI/2;          /* доски ГОРИЗОНТАЛЬНО */
+  const facadeMat=new THREE.MeshStandardMaterial({map:facadeTex,roughness:.9,side:THREE.DoubleSide,envMapIntensity:.25});
+  const FW=16, FH=20;
+  panel(FW,FH,facadeMat,-(doorW/2+FW/2),0,doorZ);                        /* стена слева  */
+  panel(FW,FH,facadeMat,(doorW/2+FW/2),0,doorZ);                         /* стена справа */
+  panel(doorW,FH/2-doorTopY,facadeMat,0,(doorTopY+FH/2)/2,doorZ);        /* стена над дверью (небольшой отступ) */
+  /* створка — фотореалистичная СТАЛЬНАЯ входная дверь (Nano Banana) */
+  const doorTex=new THREE.TextureLoader().load('assets/gen/door_metal.png',()=>{lastAct=performance.now();});
+  doorTex.colorSpace=THREE.SRGBColorSpace; doorTex.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  const metal=new THREE.MeshStandardMaterial({map:doorTex,metalness:.55,roughness:.5,envMapIntensity:.5});
   const door=new THREE.Group(); door.position.set(-doorW/2,fl,doorZ);  /* петля у левого края, на полу */
-  door.add(place(bar(doorW,doorH,0.12,metal),doorW/2,doorH/2,0));
-  door.add(place(bar(doorW*0.64,doorH*0.30,0.05,metal2),doorW/2,doorH*0.30,0.07));
-  door.add(place(bar(doorW*0.64,doorH*0.30,0.05,metal2),doorW/2,doorH*0.66,0.07));
+  door.add(place(bar(doorW,doorH,0.1,metal),doorW/2,doorH/2,0));
   /* фирменная фурнитура: накладка + ручка-лекало + личинка замка */
   const hw=new THREE.Group();
   hw.add(place(bar(0.2,0.95,0.03,brass),0,0,0.02));                            /* накладная планка */
@@ -548,57 +571,90 @@ function initScene(){
   hw.position.set(doorW-0.22,doorH*0.46,0.06); door.add(hw);
   door.userData.lever=leverPivot;             /* для анимации «ручка опускается вниз» */
   scene.add(door);
+  /* массивная коробка + наличник вокруг двери (со стороны улицы, к камере) */
+  const dframeMat=new THREE.MeshStandardMaterial({color:0x3a3d40,roughness:.55,metalness:.35});
+  const dfr=0.24, dfz=doorZ+0.13, dcY=fl+doorH/2;
+  [[doorW+dfr*2,dfr,0,doorTopY+dfr/2],[dfr,doorH+dfr*2,-(doorW/2+dfr/2),dcY],[dfr,doorH+dfr*2,(doorW/2+dfr/2),dcY]]
+    .forEach(([w,h,x,y])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,0.18),dframeMat);m.position.set(x,y,dfz);m.castShadow=true;scene.add(m);});
 
-  /* ── Лёгкий тюль у окна (уют + кадрирование, не перекрывает вид) ── */
-  const sheerMat=new THREE.MeshStandardMaterial({color:0xf4f2ed,roughness:1,transparent:true,opacity:.3,side:THREE.DoubleSide,depthWrite:false});
-  const curtGeo=new THREE.PlaneGeometry(1.05,H+0.3,8,16);
-  {const ps=curtGeo.attributes.position;for(let i=0;i<ps.count;i++){const x=ps.getX(i),y=ps.getY(i);ps.setZ(i,Math.sin(y*1.7)*0.06+Math.sin(x*3.2)*0.035);}curtGeo.computeVertexNormals();}
-  const curtainL=new THREE.Mesh(curtGeo,sheerMat); curtainL.position.set(-W/2+0.45,0,0.4); scene.add(curtainL);
-  const curtainR=new THREE.Mesh(curtGeo,sheerMat); curtainR.position.set(W/2-0.45,0,0.4); scene.add(curtainR);
+  /* ── Тёмные шторы на карнизе (контраст; распахиваются при открытии окна) ── */
+  const CZ=0.85;                                /* вынесены в комнату — не лезут в подоконник */
+  const rod=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,W+1.4,12),brass);
+  rod.rotation.z=Math.PI/2; rod.position.set(0,H/2+0.45,CZ); scene.add(rod);
+  scene.add(place(new THREE.Mesh(new THREE.SphereGeometry(0.08,12,12),brass),-(W/2+0.7),H/2+0.45,CZ));  /* наконечники */
+  scene.add(place(new THREE.Mesh(new THREE.SphereGeometry(0.08,12,12),brass),(W/2+0.7),H/2+0.45,CZ));
+  const curtMat=new THREE.MeshStandardMaterial({color:0x2c2b30,roughness:.9,side:THREE.DoubleSide});  /* тёмная ткань */
+  const cW=W*0.6, cH=H+1.2;
+  const curtMeshes=[];
+  function curtain(side){
+    const geo=new THREE.PlaneGeometry(cW,cH,14,26);
+    geo.userData.base=geo.attributes.position.array.slice();   /* плоские базовые позиции для развевания */
+    const m=new THREE.Mesh(geo,curtMat); m.position.x=side*(-cW/2);  /* тянется к центру окна */
+    const g=new THREE.Group(); g.add(m); g.position.set(side*(W/2+0.12),H/2+0.45-cH/2,CZ); scene.add(g);
+    curtMeshes.push(m); return g;
+  }
+  const curtainL=curtain(-1), curtainR=curtain(1);
 
   /* ── Элементы интерьера квартиры (распределены по глубине для пролёта) ── */
-  const rug=new THREE.Mesh(new THREE.PlaneGeometry(5,3.4),new THREE.MeshStandardMaterial({color:0x8f4a36,roughness:1}));
-  rug.rotation.x=-Math.PI/2; rug.position.set(0,fl+0.02,8.5); scene.add(rug);
-  /* напольная лампа */
+  const rug=new THREE.Mesh(new THREE.PlaneGeometry(3.8,2.8),new THREE.MeshStandardMaterial({color:0xcabfae,roughness:1}));
+  rug.rotation.x=-Math.PI/2; rug.position.set(-1.4,fl+0.02,4.6); rug.receiveShadow=true; scene.add(rug);
+  /* напольная лампа (правее окна, ближе к камере) */
   const lamp=new THREE.Group();
-  lamp.add(place(new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.06,2.4,8),brass),0,1.2,0));
-  lamp.add(place(new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.46,0.5,18,1,true),
-    new THREE.MeshStandardMaterial({color:0xf3e3c2,roughness:.7,emissive:0xffb870,emissiveIntensity:.85,side:THREE.DoubleSide})),0,2.45,0));
-  lamp.position.set(3.5,fl,10.5); scene.add(lamp);
+  lamp.add(place(new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.06,1.9,8),brass),0,0.95,0));
+  lamp.add(place(new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.4,0.45,18,1,true),
+    new THREE.MeshStandardMaterial({color:0xf3e3c2,roughness:.7,emissive:0xffb870,emissiveIntensity:.85,side:THREE.DoubleSide})),0,2.0,0));
+  lamp.position.set(3.3,fl,5.2); scene.add(lamp);
   /* подвесной светильник */
-  scene.add(place(new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,1.2,6),new THREE.MeshStandardMaterial({color:0x1a1a1a})),-1.4,roomH/2-0.6,11));
-  scene.add(place(new THREE.Mesh(new THREE.SphereGeometry(0.19,16,16),
-    new THREE.MeshStandardMaterial({color:0xffe6b0,emissive:0xffc06a,emissiveIntensity:1.3})),-1.4,roomH/2-1.2,11));
+  scene.add(place(new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.8,6),new THREE.MeshStandardMaterial({color:0x1a1a1a})),-1.2,roomH/2-0.4,6));
+  scene.add(place(new THREE.Mesh(new THREE.SphereGeometry(0.17,16,16),
+    new THREE.MeshStandardMaterial({color:0xffe6b0,emissive:0xffc06a,emissiveIntensity:1.3})),-1.2,roomH/2-0.8,6));
 
-  /* ── Реальные 3D-модели (Poly Haven, CC0): диван, растение, картина ── */
+  /* кухня и обеденная группа убраны — фокус на окне и двери (минимальный лаунж как фон) */
+
+  /* консоль у окна слева (на неё — цветок) */
+  const woodMat=new THREE.MeshStandardMaterial({color:0x6e553a,roughness:.55,metalness:.05});
+  const nsW=0.8,nsH=0.62,nsD=0.5, nsX=-roomW/2+0.6, nsZ=2.3, nsTop=fl+nsH;
+  const ns=new THREE.Group();
+  ns.add(place(new THREE.Mesh(new THREE.BoxGeometry(nsW,nsH,nsD),woodMat),0,nsH/2,0));
+  ns.add(place(new THREE.Mesh(new THREE.BoxGeometry(nsW+0.06,0.05,nsD+0.06),woodMat),0,nsH,0));  /* столешница */
+  ns.position.set(nsX,fl,nsZ); scene.add(ns);
+
+  /* ── Реальные 3D-модели (Poly Haven, CC0) ── */
   const gltf=new GLTFLoader();
-  function loadModel(url,{fit,fitAxis='x',x=0,z=0,ry=0,worldY=null}){
+  function loadModel(url,{fit,fitAxis='x',x=0,z=0,ry=0,worldY=null,standY=fl}){
     gltf.load(url,(g)=>{
       const o=g.scene;
       const size=new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3());
       o.scale.setScalar(fit/(size[fitAxis]||1));
       const box=new THREE.Box3().setFromObject(o), ctr=box.getCenter(new THREE.Vector3());
       o.position.x-=ctr.x; o.position.z-=ctr.z;
-      o.position.y-=(worldY===null?box.min.y:ctr.y);   /* на пол либо центр на высоте */
+      o.position.y-=(worldY===null?box.min.y:ctr.y);   /* на опору либо центр на высоте */
+      o.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true;}});
       const wrap=new THREE.Group(); wrap.add(o);
-      wrap.position.set(x,(worldY===null?fl:worldY),z); wrap.rotation.y=ry;
+      wrap.position.set(x,(worldY===null?standY:worldY),z); wrap.rotation.y=ry;
       scene.add(wrap); lastAct=performance.now();
     },undefined,(e)=>console.warn('GLTF fail',url,e));
   }
-  loadModel('assets/Sofa_01/Sofa_01_1k.gltf',                         {fit:3.6,fitAxis:'x',x:-2.9,z:8.5,ry:Math.PI/2});
-  loadModel('assets/pachira_aquatica_01/pachira_aquatica_01_1k.gltf', {fit:2.6,fitAxis:'y',x:-2.7,z:2.2});
-  loadModel('assets/hanging_picture_frame_02/hanging_picture_frame_02_1k.gltf',{fit:1.6,fitAxis:'y',x:roomW/2-0.15,z:9.5,ry:-Math.PI/2,worldY:0.4});
+  loadModel('assets/Sofa_01/Sofa_01_1k.gltf',                         {fit:3.9,fitAxis:'x',x:-2.7,z:5,ry:Math.PI/2});      /* крупнее, ближе */
+  loadModel('assets/potted_plant_01/potted_plant_01_1k.gltf',         {fit:1.05,fitAxis:'y',x:nsX,z:nsZ,standY:nsTop});   /* на консоли */
+  loadModel('assets/hanging_picture_frame_02/hanging_picture_frame_02_1k.gltf',{fit:1.6,fitAxis:'y',x:roomW/2-0.1,z:6,ry:-Math.PI/2,worldY:0.5});
 
   /* Улицу (лес, поляна, солнце) теперь показывает фотозадник landTex */
 
   /* ── Свет: тёплый интерьер + солнце снаружи ── */
   scene.add(new THREE.HemisphereLight(0xcfe0f0,0x6b6052,.34));
   scene.add(new THREE.AmbientLight(0xffe9cf,.1));
-  const warm=new THREE.PointLight(0xffb86a,18,18,2); warm.position.set(3.5,1.7,10.5); scene.add(warm);   /* напольная лампа */
-  const pendLight=new THREE.PointLight(0xffc678,9,11,2); pendLight.position.set(-1.4,1.3,11); scene.add(pendLight); /* подвес */
-  const entry=new THREE.PointLight(0xffe2b0,11,13,2); entry.position.set(0.6,1.6,18.5); scene.add(entry); /* подсветка входной двери */
-  const suncast=new THREE.DirectionalLight(0xfff0d8,1.15); suncast.position.set(1.3,1,-6);
-  suncast.target.position.set(0,0,5); scene.add(suncast); scene.add(suncast.target);
+  const warm=new THREE.PointLight(0xffb86a,15,16,2); warm.position.set(2.9,1.7,9.3); scene.add(warm);   /* напольная лампа */
+  const pendLight=new THREE.PointLight(0xffc678,8,10,2); pendLight.position.set(-1,1.3,9.3); scene.add(pendLight); /* подвес */
+  const entry=new THREE.PointLight(0xffe2b0,10,11,2); entry.position.set(0.6,1.5,15.5); scene.add(entry); /* подсветка входной двери */
+  const suncast=new THREE.DirectionalLight(0xfff1da,1.7); suncast.position.set(2.5,3.5,-7);  /* солнце снаружи в окно */
+  suncast.target.position.set(-1,fl+0.5,5); scene.add(suncast); scene.add(suncast.target);
+  if(!isMobile){
+    suncast.castShadow=true; suncast.shadow.mapSize.set(1024,1024);
+    suncast.shadow.camera.near=1; suncast.shadow.camera.far=26;
+    suncast.shadow.camera.left=-8; suncast.shadow.camera.right=8; suncast.shadow.camera.top=7; suncast.shadow.camera.bottom=-6;
+    suncast.shadow.bias=-0.0006;
+  }
 
   /* ── Постобработка: bloom («врывается свет») ── */
   const composer=new EffectComposer(renderer);
@@ -659,26 +715,36 @@ function initScene(){
     if(reduce){ autoOpen=Math.min(1,autoOpen+dt*0.25); }
     const p=reduce?autoOpen:ease(scrollP);
 
-    /* дверь — герой №1: сначала опускается ручка, затем створка открывается */
+    /* дверь — герой №1: ручка вниз, створка открывается на подлёте */
     const lever=door.userData.lever;
-    if(lever) lever.rotation.z=smooth(0.03,0.12,p)*0.85;   /* ручка нажимается вниз */
-    const dOpen=smooth(0.14,0.26,p);                       /* створка — после нажатия */
-    door.rotation.y=dOpen*1.7;
-    const ang=smooth(0.56,0.8,p)*1.5;             /* окно — герой №2 */
+    if(lever) lever.rotation.z=smooth(0.0,0.06,p)*0.85;
+    door.rotation.y=smooth(0.05,0.17,p)*1.75;
+
+    /* окно — герой №2: тёмные шторы раньше распахиваются и развеваются, затем створки */
+    const winOpen=smooth(0.3,0.55,p);
+    const billowAmt=smooth(0.22,0.46,p)*(1-smooth(0.62,0.85,p));
+    const tcl=clock.elapsedTime;
+    curtainL.scale.x=1-winOpen*0.7; curtainR.scale.x=1-winOpen*0.7;
+    curtMeshes.forEach((m,idx)=>{
+      const g=m.geometry,pos=g.attributes.position,base=g.userData.base;
+      for(let i=0;i<pos.count;i++){const bx=base[i*3],by=base[i*3+1];
+        pos.setZ(i,Math.sin(bx*6)*0.05+Math.sin(by*1.4+tcl*3.5+idx*2.1)*0.12*billowAmt);}
+      pos.needsUpdate=true; g.computeVertexNormals();
+    });
+    const ang=smooth(0.5,0.72,p)*1.5;
     left.rotation.y=ang; right.rotation.y=-ang;
 
     const out=smooth(0.82,1,p);                   /* вылет на улицу */
-    mx+=(tmx-mx)*.05; my+=(tmy-my)*.05;
-    /* плавная дуга: задержка у двери → быстрый проброс → задержка у окна → улица */
-    const par=1-p, camZ=catmull(p,[[0,21.5],[0.14,17],[0.26,15],[0.5,2.5],[0.8,0.1],[1,-3]]);
-    const doorBeat=1-smooth(0.08,0.3,p);                   /* 1 у двери → 0 в квартире */
-    camera.position.set(mx*0.5*par, my*0.3*par+out*0.3-doorBeat*0.5, camZ);
-    target.set(mx*0.3*par, my*0.2*par+out*1.1-doorBeat*1.4, camZ-5);  /* у двери смотрим ниже — на ручку */
+    /* плавная дуга БЕЗ параллакса: стена с дверью(13) → проброс → окно(0) → улица */
+    const camZ=catmull(p,[[0,17.5],[0.13,12.8],[0.25,10.5],[0.5,2.2],[0.8,0.0],[1,-2.5]]);
+    const doorBeat=1-smooth(0.06,0.3,p);
+    camera.position.set(0, 0.2+out*0.25-doorBeat*0.25, camZ);
+    target.set(0, 0.0+out*0.5-doorBeat*0.05, camZ-5);   /* ровный взгляд у двери: низ двери у края, сверху отступ */
     camera.lookAt(target);
 
-    renderer.toneMappingExposure=0.72+out*out*0.16;   /* мягче — лес виден за названием */
-    bloom.strength=0.1+out*out*0.32;
-    dust.material.opacity=out*0.5; dust.rotation.y+=dt*0.03;
+    renderer.toneMappingExposure=0.72+out*out*0.2;
+    bloom.strength=0.1+out*out*0.16;                  /* меньше дымки — пейзаж сочный */
+    dust.material.opacity=out*0.22; dust.rotation.y+=dt*0.03;
 
     /* заголовок и счётчик растворяются при влёте */
     const uo=clamp(1-p/0.26);
